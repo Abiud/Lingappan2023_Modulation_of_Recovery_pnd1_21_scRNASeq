@@ -1,0 +1,54 @@
+# Cellchat
+
+```{r setup}
+#| message: FALSE
+set.seed(42)
+age <- "pnd1"
+samples <- c("RoomAirF_1", "RoomAirM_1")
+projectDir <- getwd()
+
+source("R/cellchat.R")
+.packages <- c(
+    "Seurat", "dplyr", "htmlwidgets", "ggplot2", "patchwork",
+    "DT", "downloadthis", "crosstalk", "purrr", "knitr",
+    "ComplexHeatmap", "SeuratObject", "SeuratWrappers",
+    "circlize", "pheatmap", "stringr", "magrittr", "future",
+    "CellChat", "parallel", "NMF", "ggalluvial"
+)
+
+# require packages
+loaded_packages <- lapply(.packages, require, character.only = TRUE)
+```
+
+## Subset Immune and Endothelial cells
+```{r subsetImmuneEndo}
+#| message: FALSE
+immuneEndoDir <- file.path(projectDir, "data", age, "immuneEndoSubset.RData")
+if (file.exists(immuneEndoDir)) {
+    load(immuneEndoDir)
+} else {
+    load(file.path(projectDir, "data", age, "integrated.RData"))
+    immuneEndo <- subset(integrated, subset = celltype %in% c("immune", "endothelial"))
+    save(immuneEndo, file = immuneEndoDir)
+}
+```
+
+## Get CellChat objects
+```{r getCellChatObjects}
+#| message: FALSE
+saveDir <- file.path(projectDir, "data", age, "byCellType")
+
+if (!dir.exists(file.path(saveDir, "immuneEndo"))) {
+    RunCellChat(immuneEndo, "immuneEndo", age, byExp = FALSE, projectDir = projectDir)
+}
+
+if (!dir.exists(file.path(saveDir, "immuneEndoFemale"))) {
+    immuneEndoFemale <- subset(immuneEndo, subset = sex == "Female")
+    RunCellChat(immuneEndoFemale, "immuneEndoFemale", age, byExp = FALSE, projectDir = projectDir)
+}
+
+if (!dir.exists(file.path(saveDir, "immuneEndoMale"))) {
+    immuneEndoMale <- subset(immuneEndo, subset = sex == "Male" & cluster_name != "NK Cells")
+    RunCellChat(immuneEndoMale, "immuneEndoMale", age, byExp = FALSE, projectDir = projectDir)
+}
+```

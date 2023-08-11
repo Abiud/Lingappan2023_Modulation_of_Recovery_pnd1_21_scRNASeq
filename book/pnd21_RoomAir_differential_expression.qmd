@@ -1,0 +1,229 @@
+# PND 21 Differential Expression Analysis - Room Air subset - Male vs Female
+
+```{r setup}
+set.seed(42)
+age <- "pnd21"
+samples <- c("OxygenF_21", "RoomAirF_21", "OxygenM_21", "RoomAirM_21")
+projectDir <- getwd()
+integratedRADir <- file.path(projectDir, "data", age, "integratedRA.RData")
+load(integratedRADir)
+
+source("R/helpers.R")
+source("R/plots.R")
+source("R/differential_expression.R")
+source("R/get_enrichment_summary.R")
+```
+
+```{r loadLibraries}
+#| message: FALSE
+.packages <- c(
+    "Seurat", "dplyr", "htmlwidgets", "ggplot2", "patchwork",
+    "DT", "downloadthis", "crosstalk", "purrr", "knitr",
+    "ComplexHeatmap", "SeuratObject", "SeuratWrappers",
+    "circlize", "pheatmap", "sctransform", "stringr", "magrittr", "future",
+    "RcppAnnoy", "enrichR"
+)
+
+# require packages
+loaded_packages <- lapply(.packages, require, character.only = TRUE)
+```
+
+```{r initialize_datatable}
+#| include: FALSE
+htmltools::tagList(DT::datatable(cars))
+```
+
+## Subset Endothelial
+```{r subsetEndothelial}
+#| message: FALSE
+endoSubsetRADir <- file.path(projectDir, "data", age, "endoSubsetRA.RData")
+if (file.exists(endoSubsetRADir)) {
+    load(endoSubsetRADir)
+} else {
+    endoSubsetRA <- GetCellTypeSubset(integratedRA, cellTypeName = "endothelial")
+    save(endoSubsetRA, file = endoSubsetRADir)
+}
+```
+
+### Endothelial Figures
+
+:::: {.panel-tabset group="endoPlots"}
+
+```{r endoFigures}
+#| echo: FALSE
+#| message: FALSE
+#| output: asis
+#| fig-width: 12
+#| fig-height: 8
+plots <- GetSubsetPlots(endoSubsetRA)
+cat("## Dimplot\n\n")
+plots$dimPlots[["umap"]]
+cat("\n\n")
+cat("## Dimplot by Sample\n\n")
+plots$dimPlots[["splitBySample"]]
+cat("\n\n")
+cat("## Dimplot by Experiment\n\n")
+plots$dimPlots[["splitByExperiment"]]
+cat("\n\n")
+cat("## Dimplot by Sex\n\n")
+plots$dimPlots[["groupBySex"]]
+cat("\n\n")
+cat("## Proportion Plots\n\n")
+plots$proportionPlots[["byExperiment"]] / plots$proportionPlots[["bySample"]]
+cat("\n\n")
+```
+
+::::
+
+### Get Endothelial Male vs Female DE Genes
+```{r getEndothelialMarkers}
+#| message: FALSE
+endoMarkersRADir <- file.path(projectDir, "results", age, "endoMarkersRA.RData")
+if (file.exists(endoMarkersRADir)) {
+    load(endoMarkersRADir)
+} else {
+    endoMarkersRA <- GetMarkers(endoSubsetRA, "endothelial", compare = "sex")
+    GetEnrichmentSummarySingleCondition(endoMarkersRA, "endothelial", age)
+    save(endoMarkersRA, file = endoMarkersRADir)
+}
+```
+
+:::: {.panel-tabset group="endoMarkers"}
+
+```{r endoMarkers}
+#| echo: FALSE
+#| output: asis
+#| message: FALSE
+for (i in names(endoMarkersRA)) {
+    cat("## ", i, "\n\n")
+    print(htmltools::tagList(
+        DT::datatable(endoMarkersRA[[i]] |> dplyr::filter(sig_exp %in% c("UP", "DOWN")) |> dplyr::arrange(desc(avg_log2FC)),
+        extensions = "Buttons",
+        options = list(
+            dom = "Blfrtip",
+            buttons = c("copy", "csv", "excel", "pdf", "print"),
+            lengthMenu = list(
+                c(10, 25, 50, -1),
+                c(10, 25, 50, "All")
+            ),
+            scrollX = TRUE
+        )
+    )))
+    cat("\n\n")
+}
+```
+
+::::
+
+:::: {.panel-tabset group="endoMarkersFigures"}
+```{r endoMarkersFigures}
+#| echo: FALSE
+#| message: FALSE
+#| output: asis
+#| fig-width: 12
+#| fig-height: 8
+for (i in names(endoMarkersRA)) {
+    cat("## ", i, "\n\n")
+    GenerateHeatmaps(endoSubsetRA, i, endoMarkersRA[[i]], compareBy = "sex", experiment = "bySex")
+    cat("\n\n")
+}
+```
+::::
+
+## Subset Immune
+```{r subsetImmune}
+#| message: FALSE
+immuneSubsetRADir <- file.path(projectDir, "data", age, "immuneSubsetRA.RData")
+if (file.exists(immuneSubsetRADir)) {
+    load(immuneSubsetRADir)
+} else {
+    immuneSubsetRA <- GetCellTypeSubset(integratedRA, cellTypeName = "immune")
+    save(immuneSubsetRA, file = immuneSubsetRADir)
+}
+```
+
+### Immune Figures
+
+:::: {.panel-tabset group="immunePlots"}
+
+```{r immuneFigures}
+#| echo: FALSE
+#| message: FALSE
+#| output: asis
+#| fig-width: 12
+#| fig-height: 8
+plots <- GetSubsetPlots(immuneSubsetRA)
+cat("## Dimplot\n\n")
+plots$dimPlots[["umap"]]
+cat("\n\n")
+cat("## Dimplot by Sample\n\n")
+plots$dimPlots[["splitBySample"]]
+cat("\n\n")
+cat("## Dimplot by Experiment\n\n")
+plots$dimPlots[["splitByExperiment"]]
+cat("\n\n")
+cat("## Dimplot by Sex\n\n")
+plots$dimPlots[["groupBySex"]]
+cat("\n\n")
+cat("## Proportion Plots\n\n")
+plots$proportionPlots[["byExperiment"]] / plots$proportionPlots[["bySample"]]
+cat("\n\n")
+```
+
+::::
+
+### Get Immune Male vs Female DE Genes
+```{r getImmuneMarkers}
+#| message: FALSE
+immuneMarkersRADir <- file.path(projectDir, "results", age, "immuneMarkersRA.RData")
+if (file.exists(immuneMarkersRADir)) {
+    load(immuneMarkersRADir)
+} else {
+    immuneMarkersRA <- GetMarkers(immuneSubsetRA, "immune", compare = "sex")
+    GetEnrichmentSummarySingleCondition(immuneMarkersRA, "immune", age)
+    save(immuneMarkersRA, file = immuneMarkersRADir)
+}
+```
+
+:::: {.panel-tabset group="immuneMarkers"}
+
+```{r immuneMarkers}
+#| echo: FALSE
+#| output: asis
+#| message: FALSE
+for (i in names(immuneMarkersRA)) {
+    cat("## ", i, "\n\n")
+    print(htmltools::tagList(
+        DT::datatable(immuneMarkersRA[[i]] |> dplyr::filter(sig_exp %in% c("UP", "DOWN")) |> dplyr::arrange(desc(avg_log2FC)),
+        extensions = "Buttons",
+        options = list(
+            dom = "Blfrtip",
+            buttons = c("copy", "csv", "excel", "pdf", "print"),
+            lengthMenu = list(
+                c(10, 25, 50, -1),
+                c(10, 25, 50, "All")
+            ),
+            scrollX = TRUE
+        )
+    )))
+    cat("\n\n")
+}
+```
+
+::::
+
+:::: {.panel-tabset group="immuneMarkersFigures"}
+```{r immuneMarkersFigures}
+#| echo: FALSE
+#| message: FALSE
+#| output: asis
+#| fig-width: 12
+#| fig-height: 8
+for (i in names(immuneMarkersRA)) {
+    cat("## ", i, "\n\n")
+    GenerateHeatmaps(immuneSubsetRA, i, immuneMarkersRA[[i]], compareBy = "sex", experiment = "bySex")
+    cat("\n\n")
+}
+```
+::::
+

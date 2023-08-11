@@ -1,0 +1,39 @@
+project:
+  type: book
+
+book:
+  title: "PND1 & PND21 Single Cell Analysis"
+  author: "Abiud Cantu"
+  date: today
+  favicon: favicon.ico
+  description: PND1 & PND21 Single Cell Analysis.
+  sidebar: 
+    logo: LingappanLab.png
+    search: true
+  image: LingappanLab.png
+
+  chapters:
+    - index.qmd
+    - pnd1_index.qmd
+    - pnd1_differential_expression.qmd
+    - pnd1_cellchat.qmd
+    - pnd21_index.qmd
+    - pnd21_RoomAir_differential_expression.qmd
+    - pnd21_differential_expression.qmd
+    - pnd21_cellchat.qmd
+    - monocle3.qmd
+
+format:
+  html:
+    css: index.css
+    code-tools: true
+    code-fold: true
+    theme:
+      light: default
+
+execute:
+  warning: false
+
+knitr:
+  opts_knit:
+    root.dir: "/mnt/isilon/lingappan_hpc/Projects/SC_pnd1_pnd21/code_submission"

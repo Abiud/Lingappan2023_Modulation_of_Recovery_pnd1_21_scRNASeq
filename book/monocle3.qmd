@@ -1,0 +1,92 @@
+# Trajectory analysis with monocle3
+
+```{r setup}
+#| message: FALSE
+set.seed(42)
+projectDir <- getwd()
+
+source("R/cellchat.R")
+.packages <- c(
+    "Seurat", "dplyr", "htmlwidgets", "ggplot2", "patchwork",
+    "DT", "downloadthis", "crosstalk", "purrr", "knitr",
+    "ComplexHeatmap", "SeuratObject", "SeuratWrappers",
+    "stringr", "magrittr"
+)
+
+# require packages
+loaded_packages <- lapply(.packages, require, character.only = TRUE)
+```
+
+## Get monocle object
+
+We subset our data and let monocle generate UMAP and calculate trajectories.
+
+```{r runMonocle}
+#| message: FALSE
+#| warning: FALSE
+#| eval: FALSE
+
+# Get monocle for acaps
+endo <- subset(endoSubset, subset = cluster_name %in% c("gCap", "aCap"))
+# from endothelial subset, get pnd1 gcaps and all acaps
+acaps <- subset(endo, subset = cluster_name == "gCap" & age != "pnd1", invert = TRUE)
+RunMonocle(acaps, "acaps")
+acapsRA <- subset(acaps, subset = experiment == "Room_Air")
+RunMonocle(acapsRA, "acapsRA")
+acapsHO <- subset(acaps, subset = experiment == "Oxygen" | age == "pnd1")
+RunMonocle(acapsHO, "acapsHO")
+
+# Get monocle for Alveolar Macrophages
+AMs <- subset(immuneSubset, subset = cluster_name %in% c("Alveolar Macrophages", "Alveolar Macrophages Inhba+", "Transient Macrophages"))
+RunMonocle(AMs, "Alveolar_Macrophages")
+AMsRA <- subset(AMs, subset = experiment == "Room_Air")
+RunMonocle(AMsRA, "Alveolar_MacrophagesRA")
+AMsHO <- subset(AMs, subset = experiment == "Oxygen" | age == "pnd1")
+RunMonocle(AMsHO, "Alveolar_MacrophagesHO")
+```
+
+## Plotting
+
+### aCaps
+```{r plotAcaps}
+#| message: FALSE
+#| eval: FALSE
+saveDir <- file.path(projectDir, "data", "monocle", "acaps")
+genesRA <- read.csv(paste0(saveDir, "RA/data/graph_test_result.csv"), row.names = 1) |>
+    dplyr::arrange(q_value, desc(morans_I)) |>
+    head(1000) |>
+    tibble::rownames_to_column("id")
+genesHO <- read.csv(paste0(saveDir, "HO/data/graph_test_result.csv"), row.names = 1) |>
+    dplyr::arrange(q_value, desc(morans_I)) |>
+    head(1000) |>
+    tibble::rownames_to_column("id")
+
+load(paste0(saveDir, "RA/", "cds.RData"))
+cdsRA <- cds
+load(paste0(saveDir, "HO/", "cds.RData"))
+cdsHO <- cds
+
+GetPseudotimeHeatmapsByExp(cdsRA, cdsHO, genesRA, genesHO, cl, saveDir, resolutions = c(4))
+```
+
+### Alveolar Macrophages
+```{r plotAlveolar}
+#| message: FALSE
+#| eval: FALSE
+saveDir <- file.path(projectDir, "data", "monocle", "Alveolar Macrophages")
+genesRA <- read.csv(paste0(saveDir, "RA/data/graph_test_result.csv"), row.names = 1) |>
+    dplyr::arrange(q_value, desc(morans_I)) |>
+    head(1000) |>
+    tibble::rownames_to_column("id")
+genesHO <- read.csv(paste0(saveDir, "HO/data/graph_test_result.csv"), row.names = 1) |>
+    dplyr::arrange(q_value, desc(morans_I)) |>
+    head(1000) |>
+    tibble::rownames_to_column("id")
+
+load(paste0(saveDir, "RA/", "cds.RData"))
+cdsRA <- cds
+load(paste0(saveDir, "HO/", "cds.RData"))
+cdsHO <- cds
+
+GetPseudotimeHeatmapsByExp(cdsRA, cdsHO, genesRA, genesHO, cl, saveDir, resolutions = c(4))
+```

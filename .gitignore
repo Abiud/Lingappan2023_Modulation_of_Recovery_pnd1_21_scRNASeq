@@ -1,0 +1,11 @@
+figures/
+results/
+data/pnd1/
+data/pnd21/
+book/_book/
+book/.quarto/
+.DS_Store
+.Rhistory
+*.gz
+metadata.csv
+.Rapp.history

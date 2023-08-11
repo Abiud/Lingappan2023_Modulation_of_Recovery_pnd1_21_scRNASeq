@@ -1,0 +1,137 @@
+
+# PND 21 Preprocessing and Integration
+
+```{r setup}
+set.seed(42)
+age <- "pnd21"
+contamination <- 0.05
+samples <- c("OxygenF_21", "RoomAirF_21", "OxygenM_21", "RoomAirM_21")
+genesToRemove <- c("Gm42418", "S100a8", "S100a9")
+projectDir <- getwd()
+
+source("R/qc_processing.R")
+source("R/genomics_to_seurat.R")
+source("R/aggregate_samples.R")
+source("R/get_markers.R")
+source("R/helpers.R")
+source("R/plots.R")
+```
+
+```{r loadLibraries}
+#| message: FALSE
+.packages <- c(
+    "Seurat", "dplyr", "htmlwidgets", "ggplot2", "patchwork",
+    "DT", "downloadthis", "crosstalk", "purrr", "knitr",
+    "ComplexHeatmap", "SeuratObject", "SeuratWrappers", "SoupX",
+    "circlize", "sctransform", "stringr", "magrittr", "future"
+)
+loaded_packages <- lapply(.packages, require, character.only = TRUE)
+```
+
+**Samples**:
+
+-   Sample 1 : Room Air F PND21 - FASTQ 24090.  
+-   Sample 2 : Room Air M PND21 - FASTQ 24091. 
+
+## Read raw_data
+```{r readRawData}
+#| message: FALSE
+initialSeuratDir <- file.path(projectDir, "data", age, "initialSeurat.RData")
+
+dir.create(file.path(projectDir, "data", age), recursive = TRUE, showWarnings = FALSE)
+if (!file.exists(initialSeuratDir)) {
+    initialSeurat <- list()
+    for(sample in samples) {
+        initialSeurat[[sample]] <- Read10XToSeurat(sample)
+    }
+    save(initialSeurat, file = initialSeuratDir)
+}
+```
+
+## Use publication data
+```{r filterGenes}
+#| message: FALSE
+publicationObjectsDir <- file.path(projectDir, "data", age, "publicationObjects.RData")
+if (!file.exists(publicationObjectsDir)) {
+    load(initialSeuratDir)
+    publicationObjects <- list()
+    for(sample in samples) {
+        publicationObjects[[sample]] <- UsePublicationData(initialSeurat[[sample]])
+    }
+    rm(initialSeurat)
+    save(publicationObjects, file = publicationObjectsDir)
+}
+```
+
+## Integrate samples
+```{r integrateSamples}
+#| message: FALSE
+integratedDir <- file.path(projectDir, "data", age, "integrated.RData")
+if (!file.exists(integratedDir)) {
+    load(publicationObjectsDir)
+    integrated <- AggregateSamples(publicationObjects)
+    rm(publicationObjects)
+    gc()
+    integratedRA <- subset(integrated, subset = experiment == "Room_Air")
+    save(integrated, file = integratedDir)
+    save(integratedRA, file = file.path(projectDir, "data", age, "integratedRA.RData"))
+}
+```
+
+### Get Cluster markers
+```{r getClusterMarkers}
+#| message: FALSE
+markersDir <- file.path(projectDir, "results", age, "markers.RData")
+dir.create(file.path(projectDir, "results", age), recursive = TRUE, showWarnings = FALSE)
+load(integratedDir)
+if (!file.exists(markersDir)) {
+    markers <- GetSeuratMarkers(integrated)
+    save(markers, file = markersDir)
+}
+```
+
+### Get Cell Number
+```{r getCellNumber}
+#| message: FALSE
+cellNumDir <- file.path(projectDir, "results", age, "cellNum.RData")
+if (file.exists(cellNumDir)) {
+    load(cellNumDir)
+} else {
+    cellNum <- GetCellNumber(integrated)
+    save(cellNum, file = cellNumDir)
+}
+knitr::kable(cellNum)
+```
+
+### Integrated Figures
+
+:::: {.panel-tabset group="integratedPlots"}
+
+```{r integratedFigures}
+#| echo: FALSE
+#| message: FALSE
+#| output: asis
+#| fig-width: 12
+#| fig-height: 8
+plots <- GetIntegratedPlots(integrated)
+cat("## Dimplot\n\n")
+plots$dimPlots[["umap"]]
+cat("\n\n")
+cat("## Dimplot by Sample\n\n")
+plots$dimPlots[["splitBySample"]]
+cat("\n\n")
+cat("## Dimplot by Experiment\n\n")
+plots$dimPlots[["splitByExperiment"]]
+cat("\n\n")
+cat("## Dimplot by Sex\n\n")
+plots$dimPlots[["groupBySex"]]
+cat("\n\n")
+cat("## Feature Plots\n\n")
+plots$featurePlots
+cat("\n\n")
+cat("## DotPlot\n\n")
+plots$dotPlot
+cat("\n\n")
+```
+
+::::
