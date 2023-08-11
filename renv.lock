@@ -682,34 +682,6 @@
       ],
       "Hash": "31a87fa60eee00965ec7b5a5f56869b0"
     },
-    "SeuratWrappers": {
-      "Package": "SeuratWrappers",
-      "Version": "0.3.1",
-      "Source": "GitHub",
-      "Remotes": "welch-lab/liger, hms-dbmi/conos, immunogenomics/harmony, immunogenomics/presto, satijalab/seurat-data, velocyto-team/velocyto.R, SaskiaFreytag/schex@031320d, cole-trapnell-lab/monocle3, mojaveazure/seurat-disk, powellgenomicslab/Nebulosa, atakanekiz/CIPR-Package, prabhakarlab/Banksy",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "seurat-wrappers",
-      "RemoteUsername": "satijalab",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "d28512f804d5fe05e6d68900ca9221020d52cf1d",
-      "Requirements": [
-        "BiocManager",
-        "Matrix",
-        "R",
-        "Seurat",
-        "cowplot",
-        "ggplot2",
-        "igraph",
-        "methods",
-        "remotes",
-        "rlang",
-        "rsvd",
-        "stats",
-        "utils"
-      ],
-      "Hash": "f983e3ae587be8158b48838f9049bb26"
-    },
     "SingleCellExperiment": {
       "Package": "SingleCellExperiment",
       "Version": "1.20.1",
