@@ -8,6 +8,9 @@ The R folder conatins all of the functions used on each step.
 ## GEO
 [GSE237944](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE237944)
 
+## Docker
+A docker file is included. This image installs all the necessary packages and code to reproduce our results. 
+
 ## Run Locally
 R 4.2.3 and the package renv is recommended so the user can replicate the resulsts in the publication.
 
