@@ -43,7 +43,7 @@ WORKDIR /home/rstudio
 
 # RUN R -e "devtools::install_version('speedglm', '0.3-4', repos = 'https://packagemanager.rstudio.com/cran/2023-03-31')"
 RUN R -e "renv::restore()"
-# RUN R -e "remotes::install_github('satijalab/seurat-wrappers')"
+RUN R -e "remotes::install_github('satijalab/seurat-wrappers')"
 
 EXPOSE 8787
 

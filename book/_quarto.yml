@@ -2,12 +2,12 @@ project:
   type: book
 
 book:
-  title: "PND1 & PND21 Single Cell Analysis"
-  author: "Abiud Cantu"
+  title: 'PND1 & PND21 Single Cell Analysis'
+  author: 'Abiud Cantu'
   date: today
   favicon: favicon.ico
   description: PND1 & PND21 Single Cell Analysis.
-  sidebar: 
+  sidebar:
     logo: LingappanLab.png
     search: true
   image: LingappanLab.png
@@ -36,4 +36,4 @@ execute:
 
 knitr:
   opts_knit:
-    root.dir: "/mnt/isilon/lingappan_hpc/Projects/SC_pnd1_pnd21/code_submission"
+    root.dir: '/home/rstudio'
