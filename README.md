@@ -1,3 +1,5 @@
+<a target="_blank" href="https://www.lingappanlab.com/" rel="noopener noreferrer"><img align="right" alt="Lingappan Lab logo" src="https://www.lingappanlab.com/_next/static/media/logo.80977683.svg" width="128"/></a>
+
 # Modulation of Recovery from Neonatal Hyperoxic Lung Injury by Sex as a Biological Variable
 https://www.biorxiv.org/content/10.1101/2023.08.09.552532v1.abstract
 
