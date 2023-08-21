@@ -14,7 +14,7 @@ The R folder conatins all of the functions used on each step.
 
 A docker file is included. This image installs all the necessary packages and code to reproduce our results. The image is also uploaded to [Docker hub](https://hub.docker.com/repository/docker/abiud/lingappan2023_modulation_of_recovery/general)
 
-## Run Locally
+## How to run
 
 R 4.2.3 and the package renv is recommended so the user can replicate the resulsts in the publication.
 
