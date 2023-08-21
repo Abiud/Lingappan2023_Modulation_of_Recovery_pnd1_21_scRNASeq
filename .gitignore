@@ -9,3 +9,8 @@ book/.quarto/
 *.gz
 metadata.csv
 .Rapp.history
+.bash_history
+.cache/
+.config/
+.local/
+*.sif

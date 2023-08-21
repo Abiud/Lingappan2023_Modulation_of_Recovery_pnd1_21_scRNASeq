@@ -32,18 +32,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 RUN R -e "install.packages('renv')"
 
-ADD renv.lock /home/rstudio/
-ADD book /home/rstudio/book
-ADD data /home/rstudio/data
-ADD R /home/rstudio/R
-ADD raw_data /home/rstudio/raw_data
-ADD renv /home/rstudio/renv
-RUN chown -R rstudio:rstudio /home/rstudio
-WORKDIR /home/rstudio
-
-# RUN R -e "devtools::install_version('speedglm', '0.3-4', repos = 'https://packagemanager.rstudio.com/cran/2023-03-31')"
-RUN R -e "renv::restore()"
-RUN R -e "remotes::install_github('satijalab/seurat-wrappers')"
+# RUN R -e "renv::restore()"
+# RUN R -e "remotes::install_github('satijalab/seurat-wrappers')"
 
 EXPOSE 8787
 
