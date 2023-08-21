@@ -1,8 +1,6 @@
 # Modulation of Recovery from Neonatal Hyperoxic Lung Injury by Sex as a Biological Variable
 https://www.biorxiv.org/content/10.1101/2023.08.09.552532v1.abstract
 
-Please refer to the GEO dataset for a link to the publication.
-
 The book folder contains quarto files with a step by step analysis.
 The R folder conatins all of the functions used on each step.
 
