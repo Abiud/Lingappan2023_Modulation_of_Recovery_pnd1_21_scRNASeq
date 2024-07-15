@@ -547,3 +547,38 @@ GetGenePseudotimePlotByExp <- function(cdsRA, cdsHO, geneList) {
 
     return(finalList)
 }
+
+#' Get enriched pathways for a set of genes using EnrichR
+#'
+#' This function takes a vector of gene names and a vector of databases as input and returns a list of enriched pathways.
+#'
+#' @param geneNames A vector of gene names.
+#' @param dbs A vector of databases to use for enrichment analysis. Default is c("MSigDB_Hallmark_2020", "KEGG_2019_Mouse", "Reactome_2016", "GO_Biological_Process_2021").
+#'
+#' @return A list of enriched pathways.
+#'
+#' @examples
+#' GetEnrichRSetEnrichment(c("gene1", "gene2", "gene3"), c("MSigDB_Hallmark_2020", "KEGG_2019_Mouse"))
+#'
+#' @import enrichR
+#'
+#' @export
+#'
+#' @seealso \code{\link{enrichr}}
+#'
+#' @keywords enrichment pathway gene
+GetEnrichRSetEnrichment <- function(geneNames, id, dbs = c("MSigDB_Hallmark_2020", "KEGG_2019_Mouse", "Reactome_2016", "GO_Biological_Process_2021")) {
+    pathways <- enrichR::enrichr(geneNames, dbs)
+
+    for (i in names(pathways)) {
+        pathways[[i]]$database <- i
+        if (!missing(id)) pathways[[i]]$cluster <- id
+    }
+
+    pathways <- do.call(rbind, pathways) |>
+        dplyr::relocate(database)
+    if (!missing(id))
+        pathways <- pathways |> dplyr::relocate(cluster)
+
+    return(pathways)
+}
